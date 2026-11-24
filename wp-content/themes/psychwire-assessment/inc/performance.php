@@ -154,9 +154,87 @@ function psychwire_assessment_security_headers(): void {
 add_action( 'send_headers', 'psychwire_assessment_security_headers' );
 
 /**
+ * Public address of this request when it arrived through a Cloudflare tunnel.
+ */
+function psychwire_assessment_tunnel_origin(): string {
+	$host = $_SERVER['HTTP_HOST'] ?? '';
+
+	if ( ! is_string( $host ) || ! preg_match( '/^[a-z0-9.-]+\.trycloudflare\.com$/i', $host ) ) {
+		return '';
+	}
+
+	return 'https://' . strtolower( $host );
+}
+
+/**
+ * Keep tunnel visits on the public address instead of localhost.
+ *
+ * @param mixed $value Stored site address.
+ * @return mixed
+ */
+function psychwire_assessment_tunnel_site_url( $value ) {
+	$origin = psychwire_assessment_tunnel_origin();
+
+	return '' === $origin ? $value : $origin;
+}
+add_filter( 'option_home', 'psychwire_assessment_tunnel_site_url' );
+add_filter( 'option_siteurl', 'psychwire_assessment_tunnel_site_url' );
+
+/**
+ * Replace a localhost address with the tunnel address.
+ *
+ * @param mixed $url URL or other filtered value.
+ * @return mixed
+ */
+function psychwire_assessment_rewrite_tunnel_url( $url ) {
+	$origin = psychwire_assessment_tunnel_origin();
+
+	if ( '' === $origin || ! is_string( $url ) ) {
+		return $url;
+	}
+
+	return str_replace(
+		array( 'https://localhost:8098', 'http://localhost:8098' ),
+		$origin,
+		$url
+	);
+}
+add_filter( 'content_url', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'plugins_url', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'theme_root_uri', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'stylesheet_directory_uri', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'template_directory_uri', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'style_loader_src', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'script_loader_src', 'psychwire_assessment_rewrite_tunnel_url' );
+add_filter( 'wp_get_attachment_url', 'psychwire_assessment_rewrite_tunnel_url' );
+
+/**
+ * Point uploaded files at the tunnel.
+ *
+ * @param array<string, mixed> $uploads Upload directory data.
+ * @return array<string, mixed>
+ */
+function psychwire_assessment_tunnel_upload_dir( array $uploads ): array {
+	if ( isset( $uploads['baseurl'] ) ) {
+		$uploads['baseurl'] = psychwire_assessment_rewrite_tunnel_url( $uploads['baseurl'] );
+	}
+
+	if ( isset( $uploads['url'] ) ) {
+		$uploads['url'] = psychwire_assessment_rewrite_tunnel_url( $uploads['url'] );
+	}
+
+	return $uploads;
+}
+add_filter( 'upload_dir', 'psychwire_assessment_tunnel_upload_dir' );
+
+/**
  * Cache the public front page for visitors who are not logged in.
  */
 function psychwire_assessment_start_page_cache(): void {
+	if ( '' !== psychwire_assessment_tunnel_origin() ) {
+		return;
+	}
+
 	if ( is_admin() || wp_doing_ajax() || is_user_logged_in() || is_customize_preview() ) {
 		return;
 	}
@@ -179,7 +257,7 @@ add_action( 'template_redirect', 'psychwire_assessment_start_page_cache' );
  * @param string $html Full HTML document.
  */
 function psychwire_assessment_store_page_cache( string $html ): string {
-	if ( is_user_logged_in() || is_customize_preview() || ! is_front_page() ) {
+	if ( '' !== psychwire_assessment_tunnel_origin() || is_user_logged_in() || is_customize_preview() || ! is_front_page() ) {
 		return $html;
 	}
 
