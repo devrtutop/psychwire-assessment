@@ -1,0 +1,22 @@
+.not-found {
+	background: var(--color-intro);
+}
+
+.not-found__inner {
+	box-sizing: border-box;
+	width: min(40rem, 100%);
+	margin-inline: auto;
+	padding: clamp(72px, 14vw, 140px) clamp(var(--space), 4vw, 80px);
+}
+
+.not-found h1 {
+	margin-top: 8px;
+}
+
+.not-found p {
+	max-width: 36rem;
+}
+
+.not-found .button {
+	margin-top: var(--space);
+}

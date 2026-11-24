@@ -1,0 +1,145 @@
+:root {
+	--space: 24px;
+	--space-section: 48px;
+	--color-canvas: var(--wp--preset--color--canvas, #fcfcfd);
+	--color-white: var(--wp--preset--color--white, #fff);
+	--color-navy: var(--wp--preset--color--navy, #354782);
+	--color-intro: var(--wp--preset--color--intro, #e9edf6);
+	--color-ink: var(--wp--preset--color--ink, #151517);
+	--color-text: var(--wp--preset--color--text, #31333a);
+	--color-muted: var(--wp--preset--color--muted, #dee0e7);
+	--color-link: var(--wp--preset--color--link, #395ac7);
+	--color-line: var(--wp--preset--color--line, #d6d9df);
+	--font: var(--wp--preset--font-family--inter, Inter, sans-serif);
+	--content: 1440px;
+	--radius: 16px;
+	--radius-pill: 999px;
+}
+
+body {
+	background: var(--color-canvas);
+	color: var(--color-text);
+	font-family: var(--font);
+}
+
+.wp-site-blocks {
+	overflow-x: clip;
+}
+
+.wp-site-blocks > * + * {
+	margin-block-start: 0;
+}
+
+.intro__inner,
+.courses__inner,
+.contact__inner,
+.site-footer__inner,
+.site-header__bar {
+	box-sizing: border-box;
+	width: min(var(--content), 100%);
+	max-width: 100%;
+	margin-inline: auto;
+	padding-inline: clamp(var(--space), 4vw, 80px);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: var(--color-ink);
+	font-weight: 500;
+	line-height: 1.2;
+}
+
+h1 {
+	font-size: clamp(2.5rem, 5vw, 4rem);
+	letter-spacing: -0.04em;
+}
+
+h2 {
+	font-size: clamp(1.75rem, 3vw, 2rem);
+	letter-spacing: -0.03em;
+}
+
+h3,
+h4,
+h5,
+h6 {
+	font-size: clamp(1.25rem, 2vw, 1.5rem);
+	letter-spacing: -0.02em;
+}
+
+p {
+	color: var(--color-text);
+	font-size: 1.125rem;
+	font-weight: 400;
+	line-height: 1.6;
+}
+
+a:focus-visible {
+	outline: 3px solid currentColor;
+	outline-offset: 3px;
+}
+
+.site-main:focus,
+.site-header__bar:focus {
+	outline: none;
+}
+
+.icon {
+	display: block;
+	flex: 0 0 auto;
+}
+
+.button,
+.back-to-top {
+	font-size: 15px;
+	font-weight: 500;
+	line-height: 1;
+}
+
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 56px;
+	padding: 0 var(--space);
+	border-radius: var(--radius-pill);
+	background: var(--color-navy);
+	color: var(--color-canvas);
+	text-decoration: none;
+}
+
+.button--light {
+	min-width: 200px;
+	background: var(--color-white);
+	color: var(--color-navy);
+}
+
+.button--compact {
+	min-width: 240px;
+}
+
+@media (max-width: 640px) {
+	.intro__inner,
+	.courses__inner,
+	.contact__inner,
+	.site-footer__inner,
+	.site-header__bar {
+		width: 100%;
+		padding-inline: var(--space);
+	}
+
+	.button--light {
+		min-width: 0;
+		min-height: 44px;
+		padding-inline: 16px;
+	}
+
+	.button {
+		min-height: 44px;
+	}
+}
